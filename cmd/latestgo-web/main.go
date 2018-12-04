@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +16,7 @@ import (
 
 func main() {
 	queryTimeout := flag.Duration("query-timeout", 5*time.Second, "version query timeout")
+	cacheDuration := flag.Duration("edge-cache", time.Hour, "edge cache duration")
 	flag.Parse()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -22,6 +24,7 @@ func main() {
 		defer cancel()
 
 		w.Header().Set("Content-Type", "text/plain")
+		w.Header().Set("Cache-Control", fmt.Sprintf("public; max-age=%.0f", cacheDuration.Seconds()))
 
 		ver, err := latestgo.Version(ctx)
 		if err != nil {
