@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-	listenAddr := flag.String("listen", ":8080", "listen address in host:port form")
 	queryTimeout := flag.Duration("query-timeout", 5*time.Second, "version query timeout")
 	flag.Parse()
 
@@ -39,8 +38,14 @@ func main() {
 		}
 	})
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+		log.Printf("Defaulting to port %s", port)
+	}
+	listenAddr := ":" + port
 	srv := http.Server{
-		Addr: *listenAddr,
+		Addr: listenAddr,
 	}
 
 	idleConnsClosed := make(chan struct{})
